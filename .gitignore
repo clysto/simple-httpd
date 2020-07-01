@@ -1,2 +1,7 @@
 /test
 /.vscode
+/build
+/dist
+__pycache__
+*.pyc
+*.pyo
