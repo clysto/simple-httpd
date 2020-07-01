@@ -6,12 +6,14 @@ from http_server import HttpServer
 
 DEFAULT_CONFIG = {"root": "public", "port": 8080, "index": ["index.html", "index.cgi"]}
 
+
 def shutdown(sig, frame):
     sys.exit(0)
 
+
 if len(sys.argv) > 1:
     config_path = sys.argv[1]
-    if not path.exists(config_path) or not path.isfile(config_path):
+    if not path.isfile(config_path):
         print("invalid config file", file=sys.stderr)
         sys.exit(-1)
     with open(config_path) as f:
@@ -25,7 +27,9 @@ if not path.exists(DEFAULT_CONFIG["root"]) or not path.isdir(DEFAULT_CONFIG["roo
     sys.exit(-1)
 
 signal.signal(signal.SIGINT, shutdown)
-server = HttpServer(DEFAULT_CONFIG["root"], "127.0.0.1", DEFAULT_CONFIG["port"])
+server = HttpServer(
+    DEFAULT_CONFIG["root"], "127.0.0.1", DEFAULT_CONFIG["port"], DEFAULT_CONFIG["index"]
+)
 server.start()
 
 while True:
