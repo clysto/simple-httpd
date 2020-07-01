@@ -1,4 +1,5 @@
 import socket
+import mimetypes
 from pathlib import Path
 from threading import Thread
 from request import Request
@@ -25,6 +26,9 @@ class HttpServer(Thread):
             with p.open("rb") as f:
                 content = f.read()
                 res = Response(content)
+                content_type, _ = mimetypes.guess_type(str(p.resolve()))
+                if content_type is not None:
+                    res.header['Content-Type'] = f"{content_type}; charset=UTF-8" 
         conn.sendall(res.encode())
 
     def __get_file(self, url):

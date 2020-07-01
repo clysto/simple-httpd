@@ -4,7 +4,7 @@ import sys
 from os import path
 from http_server import HttpServer
 
-DEFAULT_CONFIG = {"root": "public", "port": 8080, "index": ["index.html", "index.cgi"]}
+DEFAULT_CONFIG = {"root": "./", "port": 8080, "index": ["index.html", "index.cgi"]}
 
 
 def shutdown(sig, frame):
