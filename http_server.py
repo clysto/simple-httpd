@@ -1,5 +1,6 @@
 import socket
 import mimetypes
+import os
 import re
 from pathlib import Path
 from threading import Thread
@@ -18,7 +19,7 @@ class HttpServer(Thread):
         self.root = root
         self.index = re.split(r"\s", index)
 
-    def __send(self, conn, req):
+    def __send(self, conn, req: Request):
         p = self.__get_file(req.url[1:])
         if p is None:
             # 找不到文件返回404
@@ -27,8 +28,13 @@ class HttpServer(Thread):
         else:
             if p.suffix == ".cgi":
                 # 使用cgi脚本执行
-                cgi_script = Popen(["python", str(p.resolve())], stdout=PIPE)
+                # 创建环境变量并传递给cgi脚本
+                env = os.environ.copy()
+                env["QUERY_STRING"] = req.query
+                print(req.query)
+                cgi_script = Popen([str(p.resolve())], stdout=PIPE, env=env)
                 (output, err) = cgi_script.communicate()
+                print(output.decode())
                 exit_code = cgi_script.wait()
                 res = Response(output)
             else:
@@ -54,6 +60,7 @@ class HttpServer(Thread):
 
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            self.socket = s
             s.bind((self.host, self.port))
             s.listen()
             print(f"Listening on http://{self.host}:{self.port}")
@@ -68,3 +75,7 @@ class HttpServer(Thread):
                     req = Request(data)
                     self.__send(conn, req)
                     conn.close()
+
+    def close(self):
+        self.socket.shutdown()
+        
