@@ -1,4 +1,6 @@
+from urllib.parse import urlparse
 class Request:
+
     def __init__(self, request_txt):
         tmp = request_txt.split("\r\n\r\n")
         head = tmp[0]
@@ -7,7 +9,9 @@ class Request:
         request_line = head[0]
         [method, url, protocol] = request_line.split(" ")
         self.method = method
-        self.url = url
+        parsed_url = urlparse(url)
+        self.url = parsed_url.path
+        self.query = parsed_url.query
         self.protocol = protocol
         self.body = body
         self.header = {}
