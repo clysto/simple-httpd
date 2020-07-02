@@ -1,0 +1,25 @@
+body {
+  background-color: bisque;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1em;
+}
+
+footer {
+  padding-top: 2em;
+  margin-top: 2em;
+  border-top: 1px solid gray;
+}
+
+.container {
+  border-radius: 5px;
+  box-shadow: 8px 8px 0 0 #ec8b8b;
+  max-width: 700px;
+  padding: 2em;
+  border: 2px solid red;
+  margin: 0 auto;
+  background-color: antiquewhite;
+}

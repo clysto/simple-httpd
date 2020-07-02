@@ -8,6 +8,7 @@ class Response:
         self.header = {
             "Date": self.format_date(datetime.utcnow()),
             "Contene-Length": len(body),
+            "Server": "simple-httpd/0.0.1"
         }
 
     def format_date(self, dt):

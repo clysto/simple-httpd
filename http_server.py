@@ -1,18 +1,22 @@
 import socket
+import mimetypes
+import re
 from pathlib import Path
 from threading import Thread
 from request import Request
 from response import Response
 from http_status import HttpStatus
 from os import path
+from subprocess import Popen, PIPE
+
 
 class HttpServer(Thread):
-    def __init__(self, root, host, port, index):
+    def __init__(self, root, port, index):
         Thread.__init__(self, daemon=True)
-        self.host = host
+        self.host = "localhost"
         self.port = port
         self.root = root
-        self.index = index
+        self.index = re.split(r"\s", index)
 
     def __send(self, conn, req):
         p = self.__get_file(req.url[1:])
@@ -21,10 +25,20 @@ class HttpServer(Thread):
             res = Response(b"")
             res.set_status(HttpStatus.NOT_FOUND)
         else:
-            # 打开指定文件返回
-            with p.open("rb") as f:
-                content = f.read()
-                res = Response(content)
+            if p.suffix == ".cgi":
+                # 使用cgi脚本执行
+                cgi_script = Popen(["python", str(p.resolve())], stdout=PIPE)
+                (output, err) = cgi_script.communicate()
+                exit_code = cgi_script.wait()
+                res = Response(output)
+            else:
+                # 打开指定文件返回
+                with p.open("rb") as f:
+                    content = f.read()
+                    res = Response(content)
+                    content_type, _ = mimetypes.guess_type(str(p.resolve()))
+                    if content_type is not None:
+                        res.header["Content-Type"] = f"{content_type}; charset=UTF-8"
         conn.sendall(res.encode())
 
     def __get_file(self, url):
@@ -35,7 +49,7 @@ class HttpServer(Thread):
             for try_file in self.index:
                 if (p / try_file).is_file():
                     return p / try_file
-        
+
         return None
 
     def run(self):
@@ -46,9 +60,8 @@ class HttpServer(Thread):
             while True:
                 conn, addr = s.accept()
                 with conn:
-                    print(addr)
                     # TODO:接收窗口调整
-                    data = conn.recv(1024)
+                    data = conn.recv(4096)
                     data = data.decode()
                     if not data:
                         continue
