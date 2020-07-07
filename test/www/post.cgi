@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import os
+import sys
+import json
 from urllib.parse import parse_qsl
 
 query_string = os.environ["QUERY_STRING"]
@@ -11,13 +13,10 @@ else:
     name = "unknowed"
 
 print("Server: simple-httpd/0.0.1")
-print("Content-Type: text/html")
+print("Content-Type: application/json")
 print("\n\n", end="")
-print("<html>")
-print("<head>")
-print("<meta charset=\"utf-8\">")
-print("</head>")
-print("<body>")
-print(f"<h1>Hello {name}</h1>")
-print("</body>")
-print("</html>")
+
+body = sys.stdin.read(2048)
+
+print(body)
+

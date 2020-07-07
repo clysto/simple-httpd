@@ -1,10 +1,11 @@
 from urllib.parse import urlparse
-class Request:
 
-    def __init__(self, request_txt):
-        tmp = request_txt.split("\r\n\r\n")
-        head = tmp[0]
-        body = tmp[1] if len(tmp) > 1 else ""
+
+class Request:
+    def __init__(self, request_txt: bytes):
+        tmp = request_txt.split(b"\r\n\r\n")
+        head = tmp[0].decode()
+        body = tmp[1] if len(tmp) > 1 else b""
         head = head.split("\r\n")
         request_line = head[0]
         [method, url, protocol] = request_line.split(" ")
@@ -13,7 +14,7 @@ class Request:
         self.url = parsed_url.path
         self.query = parsed_url.query
         self.protocol = protocol
-        self.body = body
+        self.body: bytes = body
         self.header = {}
         for i in range(1, len(head)):
             line = head[i]
